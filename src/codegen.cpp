@@ -945,8 +945,11 @@ static Value *getModuleFlag(Module *m, StringRef Key)
 
 static void jl_setup_module(Module *m)
 {
+    // Some linkers (*cough* OS X) don't understand DWARF v4, so we use v2 in
+    // imaging mode. The structure of v4 is slightly nicer for debugging JIT
+    // code.
     if (!getModuleFlag(m,"Dwarf Version"))
-        m->addModuleFlag(llvm::Module::Warning, "Dwarf Version",2);
+        m->addModuleFlag(llvm::Module::Warning, "Dwarf Version",imaging_mode ? 2 : 4);
 #ifdef LLVM34
     if (!getModuleFlag(m,"Debug Info Version"))
         m->addModuleFlag(llvm::Module::Error, "Debug Info Version",
